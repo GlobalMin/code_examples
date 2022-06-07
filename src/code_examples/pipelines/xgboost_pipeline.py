@@ -9,7 +9,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler
-from utils import (find_categorical_features, find_numeric_features,
+from code_examples.utils import (find_categorical_features, find_numeric_features,
                    get_logger, make_drop_cols_list,
                    make_list_all_param_combinations, stratified_sample)
 
