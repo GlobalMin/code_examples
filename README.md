@@ -1,2 +1,2 @@
-# Feature tools example
-This repo compares model performance between a single primary table and using automated feature engineering from Feature Tools to add features from secondary tables. 
+# Code examples
+These are relevant code snippets for those interested in my coding level, style, and background.
