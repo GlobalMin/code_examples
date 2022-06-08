@@ -4,14 +4,13 @@ on:
   - push
   - pull_request
 
-env:
-  KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-  KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-  
 jobs:
   test:
     runs-on: ${{ matrix.os }}
     environment: main
+    env:
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
