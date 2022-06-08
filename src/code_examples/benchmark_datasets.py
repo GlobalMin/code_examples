@@ -5,6 +5,7 @@ import zipfile
 import pandas as pd
 import requests
 from dotenv import load_dotenv
+import kaggle
 
 from code_examples.utils import get_logger, stratified_sample
 
