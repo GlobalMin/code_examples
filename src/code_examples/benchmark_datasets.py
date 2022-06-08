@@ -5,7 +5,7 @@ import zipfile
 import pandas as pd
 import requests
 from dotenv import load_dotenv
-import kaggle
+
 
 from code_examples.utils import get_logger, stratified_sample
 
@@ -64,8 +64,6 @@ def get_cc_approval_data():
 
     return new_df
 
-
-()
 
 CC_FRAUD_DATA = get_cc_fraud_data()
 AUTRALIAN_CREDIT_DATA = get_australian_credit_data()
