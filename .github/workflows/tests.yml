@@ -7,6 +7,7 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    environment: main
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
