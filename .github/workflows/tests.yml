@@ -3,7 +3,7 @@ name: Tests
 on:
   - push
   - pull_request
-  
+
 
 env:
   KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.8']
 
     steps:
