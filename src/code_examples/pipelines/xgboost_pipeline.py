@@ -1,25 +1,19 @@
-import os
-
 import pandas as pd
 import xgboost as xgb
-from dotenv import load_dotenv
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler
-from code_examples.utils import (find_categorical_features, find_numeric_features,
-                   get_logger, make_drop_cols_list,
-                   make_list_all_param_combinations, stratified_sample)
 
-load_dotenv()
-DATA_PATH = os.environ.get("DATA_PATH")
-os.chdir(DATA_PATH)
+from code_examples.utils import (find_categorical_features,
+                                 find_numeric_features, get_logger,
+                                 make_drop_cols_list,
+                                 make_list_all_param_combinations,
+                                 stratified_sample)
 
 logger = get_logger(__name__)
-
-train_df = pd.read_csv("application_train.csv")
 
 
 def sample(df, target, sample_frac):
@@ -154,35 +148,3 @@ class XGBoostPipeline:
         results.sort(key=lambda x: x["AUC"], reverse=True)
 
         return results
-
-
-xgb_params = {
-    "eta": [0.01, 0.025],
-    "max_depth": [5, 6, 7],
-    "n_estimators": [1000],
-    "subsample": [0.8, 1.0],
-    "colsample_bytree": [0.8, 1.0],
-    "objective": ["binary:logistic"],
-    "eval_metric": ["auc"],
-    "early_stopping_rounds": [50],
-}
-
-
-def train():
-
-    X, y = sample(df=train_df, target="TARGET", sample_frac=0.1)
-    # ID field
-    X.drop("SK_ID_CURR", axis=1, inplace=True)
-
-    pipeline = XGBoostPipeline(X, y, xgb_params)
-    results = (
-        pipeline.define_preprocess_pipeline()
-        .apply_train_test_split(X, y)
-        .fit_and_tune_xboost()
-    )
-
-    print(results)
-
-
-if __name__ == "__main__":
-    train()
