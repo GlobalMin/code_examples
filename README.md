@@ -5,6 +5,8 @@ This repo gathers a number of benchmark datasets for binary classification and r
 
 
 ## Installation and notes
+You will need an account with [Kaggle](https://www.kaggle.com/). It's free.
+
 It's recommended that you create a fresh virtual environment first. Then run these commands in a terminal.
     
 ```bash
@@ -12,7 +14,7 @@ pip install -e .
 pip install -r requirements.txt
  ```
 
-In order to grab the datasets from Kaggle you'll need to [create an API token there](https://www.kaggle.com/docs/api) and load it as an environment variable. Then you'll need to create a .env file in this directory with the following content:
+In order to grab the datasets from Kaggle you'll need to [create an API token there](https://www.kaggle.com/docs/api) and load it as an environment variable. Modify the file in the repo ".env.sample" and add in your credentials as shown below, then rename it to just ".env".
 
 ```
 KAGGLE_USERNAME="your_username"
