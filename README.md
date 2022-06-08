@@ -12,7 +12,7 @@ pip install -e .
 pip install -r requirements.txt
  ```
 
-In order to grab the datasets from Kaggle you'll need to create an API token there and load it as an environment variable. I reccomend using a .env file with the following content:
+In order to grab the datasets from Kaggle you'll need to [create an API token there](https://www.kaggle.com/docs/api) and load it as an environment variable. Then you'll need to create a .env file in this directory with the following content:
 
 ```
 KAGGLE_USERNAME="your_username"
