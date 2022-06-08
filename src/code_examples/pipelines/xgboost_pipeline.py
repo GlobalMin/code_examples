@@ -1,4 +1,3 @@
-import pandas as pd
 import xgboost as xgb
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -27,6 +26,8 @@ def sample(df, target, sample_frac):
 
 
 class XGBoostPipeline:
+    """Fit XGBoost classifier on an arbitrary dataset."""
+
     def __init__(self, X, y, params):
         self.X = X
         self.y = y
@@ -48,7 +49,7 @@ class XGBoostPipeline:
         self.X_train_valid_preprocessed = None
 
     def define_preprocess_pipeline(self):
-        """Make a XGBoost pipeline with OrdinalEncoder for categoricals and imputation for numerics"""
+        """Set up sklearn Pipeline for imputing missings and encoding categoricals"""
         numeric_transformer = Pipeline(
             steps=[
                 ("imputer", SimpleImputer(strategy="median")),
@@ -57,7 +58,7 @@ class XGBoostPipeline:
         )
 
         categorical_transformer = Pipeline(
-            steps=[("ordinal_encoding", OrdinalEncoder())]
+            steps=[("ordinal_encoding", OrdinalEncoder(encoded_missing_value=-1))]
         )
 
         preprocessor = ColumnTransformer(
