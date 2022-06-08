@@ -3,6 +3,7 @@ name: Tests
 on:
   - push
   - pull_request
+  
 
 env:
   KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
