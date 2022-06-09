@@ -6,7 +6,6 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 
-
 from code_examples.utils import get_logger, stratified_sample
 
 load_dotenv()
@@ -70,7 +69,7 @@ AUTRALIAN_CREDIT_DATA = get_australian_credit_data()
 CC_APPROVAL_DATA = get_cc_approval_data()
 
 DATASETS_INFO = [
-    [CC_APPROVAL_DATA, "target", "CC Approval Data"],
     [AUTRALIAN_CREDIT_DATA, "Target", "Australian Credit"],
     [CC_FRAUD_DATA, "Class", "CC Fraud Data"],
+    [CC_APPROVAL_DATA, "target", "CC Approval Data"],
 ]

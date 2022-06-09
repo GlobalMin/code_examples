@@ -1,3 +1,7 @@
+import os
+import pickle
+
+import tqdm
 import xgboost as xgb
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -28,10 +32,11 @@ def sample(df, target, sample_frac):
 class XGBoostPipeline:
     """Fit XGBoost classifier on an arbitrary dataset."""
 
-    def __init__(self, X, y, params):
+    def __init__(self, X, y, params, dataset_name):
         self.X = X
         self.y = y
         self.params = params
+        self.dataset_name = dataset_name
         self.categorical_cols = find_categorical_features(self.X)
         self.numeric_cols = find_numeric_features(self.X)
         self.preprocess_pipeline = None
@@ -113,12 +118,14 @@ class XGBoostPipeline:
         all_params = make_list_all_param_combinations(self.params)
 
         self.apply_preprocess_pipline_to_all_partitions()
+        logger.info("Training models...")
 
         results = []
-        for d in all_params:
+
+        for d in tqdm.tqdm(all_params):
             eval_set = [(self.X_train_valid_preprocessed, self.y_train_valid)]
             # Train the model on the current set of hyperparameters
-            logger.info(f"Training model with n_estimators: {d['n_estimators']}")
+
             model = xgb.XGBClassifier(**d, use_label_encoder=False)
             model.fit(
                 self.X_train_train_preprocessed,
@@ -132,20 +139,37 @@ class XGBoostPipeline:
 
             # Refit on the whole training set using optimal n_estimators
             del d["early_stopping_rounds"]
-            logger.info(f"Refitting model with n_estimators: {d['n_estimators']}")
+
+            # Setting up whole flow as a Pipeline object using proper n_estimators
             model = xgb.XGBClassifier(**d, use_label_encoder=False)
-            model.fit(self.X_train_preprocessed, self.y_train)
+
+            full_pipeline = Pipeline(
+                [("preprocess", self.preprocess_pipeline), ("xgb", model)]
+            )
+            full_pipeline.fit(self.X_train, self.y_train)
 
             # Evaluate the model on the test set and calculate the AUC
-            y_pred = model.predict_proba(self.X_test_preprocessed)[:, 1]
+            y_pred = full_pipeline.predict_proba(self.X_test)[:, 1]
             auc = roc_auc_score(self.y_test, y_pred)
 
             # Store AUC and hyperparameters
-            results.append({"AUC": auc, "hyperparameters": d})
-            logger.info("AUC: {}".format(auc))
-            logger.info("Hyperparameters: {}".format(d))
+            results.append({"AUC": auc, "hyperparameters": d, "model": full_pipeline})
 
         # Sort the results by AUC
         results.sort(key=lambda x: x["AUC"], reverse=True)
+
+        logger.info(f'Best results: AUC = {results[0]["AUC"]}')
+        logger.info(f'Best hyperparameters: {results[0]["hyperparameters"]}')
+
+        # Pickle dump best pipeline
+        with open(
+            os.path.join(
+                os.getcwd(),
+                "model_objects",
+                f"{self.dataset_name}_xgboost_pipeline.pkl",
+            ),
+            "wb",
+        ) as f:
+            pickle.dump(results[0]["model"], f)
 
         return results

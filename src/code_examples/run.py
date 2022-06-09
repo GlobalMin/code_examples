@@ -9,10 +9,10 @@ logger = get_logger(__name__)
 
 
 xgb_params = {
-    "eta": [0.01, 0.005],
-    "max_depth": [5, 6, 7],
+    "eta": [0.01, 0.025],
+    "max_depth": [4, 6, 8],
     "n_estimators": [1000],
-    "subsample": [0.8, 1.0],
+    "subsample": [0.8],
     "colsample_bytree": [0.8, 1.0],
     "objective": ["binary:logistic"],
     "eval_metric": ["auc"],
@@ -20,13 +20,12 @@ xgb_params = {
 }
 
 
-def train(X, y):
-    pipeline = XGBoostPipeline(X, y, xgb_params)
-    results = (
-        pipeline.define_preprocess_pipeline()
-        .apply_train_test_split(X, y)
-        .fit_and_tune_xboost()
-    )
+def train(X, y, xgb_params, dataset_name):
+    pipeline = XGBoostPipeline(X, y, xgb_params, dataset_name)
+
+    pipeline.define_preprocess_pipeline().apply_train_test_split(
+        X, y
+    ).fit_and_tune_xboost()
 
 
 for dataset in DATASETS_INFO:
@@ -38,4 +37,4 @@ for dataset in DATASETS_INFO:
     X = df
 
     logger.info(f"Training model on {desc}")
-    train(X, y)
+    train(X, y, xgb_params, dataset_name=desc)
