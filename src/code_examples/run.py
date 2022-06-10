@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 
 from code_examples.benchmark_datasets import DATASETS_INFO
+from code_examples.pipelines.elastic_net_pipeline import ElasticNetPipeline
 from code_examples.pipelines.xgboost_pipeline import XGBoostPipeline
 from code_examples.utils import get_logger
 
@@ -21,11 +22,14 @@ xgb_params = {
 
 
 def train(X, y, xgb_params, dataset_name):
-    pipeline = XGBoostPipeline(X, y, xgb_params, dataset_name)
+    # pipeline = XGBoostPipeline(X, y, xgb_params, dataset_name)
 
-    pipeline.define_preprocess_pipeline().apply_train_test_split(
-        X, y
-    ).fit_and_tune_xboost()
+    # pipeline.define_preprocess_pipeline().apply_train_test_split(
+    #     X, y
+    # ).fit_and_tune_xboost()
+
+    enet_pipeline = ElasticNetPipeline(X, y, xgb_params, dataset_name)
+    enet_pipeline.fit()
 
 
 for dataset in DATASETS_INFO:
