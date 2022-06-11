@@ -1,5 +1,7 @@
 import os
+from dotenv import load_dotenv  
 
+load_dotenv()
 
 # Dummy test function
 def test_placeholder():
