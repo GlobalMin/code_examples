@@ -22,14 +22,15 @@ xgb_params = {
 
 
 def train(X, y, xgb_params, dataset_name):
-    # pipeline = XGBoostPipeline(X, y, xgb_params, dataset_name)
-
-    # pipeline.define_preprocess_pipeline().apply_train_test_split(
-    #     X, y
-    # ).fit_and_tune_xboost()
 
     enet_pipeline = ElasticNetPipeline(X, y, xgb_params, dataset_name)
     enet_pipeline.fit()
+
+    pipeline = XGBoostPipeline(X, y, xgb_params, dataset_name)
+
+    pipeline.define_preprocess_pipeline().apply_train_test_split(
+        X, y
+    ).fit_and_tune_xboost()
 
 
 for dataset in DATASETS_INFO:

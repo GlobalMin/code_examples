@@ -1,3 +1,6 @@
+import os
+import pickle
+
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegressionCV
@@ -97,3 +100,17 @@ class ElasticNetPipeline:
         self.results.append(
             {"AUC": auc, "l1_ratio": l1_ratios, "model": self.enet_pipeline}
         )
+
+        # Sort the results by AUC
+        self.results.sort(key=lambda x: x["AUC"], reverse=True)
+
+        # Pickle dump best pipeline
+        with open(
+            os.path.join(
+                os.getcwd(),
+                "model_objects",
+                f"{self.dataset_name}_enet_pipeline.pkl",
+            ),
+            "wb",
+        ) as f:
+            pickle.dump(self.results[0]["model"], f)
