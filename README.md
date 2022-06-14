@@ -20,3 +20,5 @@ In order to grab the datasets from Kaggle you'll need to [create an API token th
 KAGGLE_USERNAME="your_username"
 KAGGLE_KEY="your_key"
 ```
+## Running the benchmarks
+Run the file `app.py` to download all the benchmarks datasets and the various pipelines. The model outputs will be saved in the `model_objects` folder.
