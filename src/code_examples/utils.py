@@ -60,10 +60,17 @@ def make_drop_cols_list(df):
 
 
 def find_categorical_features(df):
-    """Find categorical features"""
+    """Find categorical features based on two heuristics:
+    1. If a column has a type of 'object'
+    2. If a column has 2 unique values
+
+    Currently this will have an issue detecting text.
+
+    TODO: Extend to handle text"""
+
     cat_cols = []
     for col in df.columns:
-        if df[col].dtype == "object":
+        if df[col].dtype == "object" or len(df[col].unique()) == 2:
             cat_cols.append(col)
     logger.info("Found {} categorical features".format(len(cat_cols)))
     return cat_cols
