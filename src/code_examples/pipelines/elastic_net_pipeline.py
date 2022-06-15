@@ -59,10 +59,11 @@ class ElasticNetPipeline:
                 (
                     "clf",
                     LogisticRegressionCV(
+                        cv=3,
                         penalty="elasticnet",
                         solver="saga",
-                        l1_ratios=[0.25, 0.5],
-                        max_iter=2000,
+                        l1_ratios=[0.5],
+                        max_iter=3000,
                     ),
                 ),
             ]

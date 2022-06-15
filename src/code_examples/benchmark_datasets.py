@@ -27,7 +27,7 @@ def get_cc_fraud_data():
 
     df = pd.read_csv("creditcard.csv")
 
-    df_sampled = stratified_sample(df, "Class", 0.3)
+    df_sampled = stratified_sample(df, "Class", 0.1)
 
     os.remove("creditcard.csv")
     os.remove("creditcardfraud.zip")
@@ -70,6 +70,6 @@ CC_APPROVAL_DATA = get_cc_approval_data()
 
 DATASETS_INFO = [
     [AUTRALIAN_CREDIT_DATA, "Target", "Australian Credit"],
-    # [CC_FRAUD_DATA, "Class", "CC Fraud Data"],
+    [CC_FRAUD_DATA, "Class", "CC Fraud Data"],
     [CC_APPROVAL_DATA, "target", "CC Approval Data"],
 ]
