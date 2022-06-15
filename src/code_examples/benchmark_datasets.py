@@ -2,6 +2,7 @@ import io
 import os
 import zipfile
 
+import numpy as np
 import pandas as pd
 import requests
 from dotenv import load_dotenv
@@ -27,12 +28,29 @@ def get_cc_fraud_data():
 
     df = pd.read_csv("creditcard.csv")
 
-    df_sampled = stratified_sample(df, "Class", 0.1)
+    # Select class column from df and sample it
+
+    df_positive_class = pd.DataFrame(df[df["Class"] == 1])
+    df_positive_class.reset_index(drop=True, inplace=True)
+    df_positive_class.dropna(inplace=True)
+    df_negative_class = pd.DataFrame(df[df["Class"] == 0])
+    df_negative_class.reset_index(drop=True, inplace=True)
+    df_negative_class.dropna(inplace=True)
+
+    df_downsampled_negative_class = df_negative_class.sample(frac=0.05, random_state=42)
+
+    # Combine y_downsample and x_downsample
+    df_downsample = pd.concat(
+        [df_positive_class, df_downsampled_negative_class], axis=0
+    )
+    df_downsample.sample(frac=1, random_state=42).reset_index(drop=True, inplace=True)
+
+    print(df_downsample["Class"].value_counts())
 
     os.remove("creditcard.csv")
     os.remove("creditcardfraud.zip")
 
-    return df_sampled
+    return df_downsample
 
 
 def get_cc_approval_data():
@@ -73,3 +91,6 @@ DATASETS_INFO = [
     [CC_FRAUD_DATA, "Class", "CC Fraud Data"],
     [CC_APPROVAL_DATA, "target", "CC Approval Data"],
 ]
+
+
+get_cc_fraud_data()

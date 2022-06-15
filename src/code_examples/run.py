@@ -1,3 +1,5 @@
+import time
+
 import yaml
 from dotenv import load_dotenv
 
@@ -35,11 +37,17 @@ def train(X, y, dataset_name):
     pipeline.fit()
 
 
+tic = time.time()
 for dataset in DATASETS_INFO:
+
     df, target, desc = dataset
 
     y = df.pop(target)
     X = df
 
-    logger.info(f"Training model on {desc}")
+    logger.info(f"Training model on {desc} with {df.shape[0]} rows")
+    logger.info(f"Count of target:{y.sum()} ")
     train(X, y, dataset_name=desc)
+
+toc = time.time()
+logger.info(f"Total time: {toc - tic}")
