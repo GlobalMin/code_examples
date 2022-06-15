@@ -111,13 +111,16 @@ class XGBoostPipeline:
 
         return self
 
-    def fit_and_tune_xboost(self):
+    def fit(self):
         """Loop over hyperparameters and select best combination based on out of sample performance"""
 
         # Loop over all combinations of hyperparameters
         all_params = make_list_all_param_combinations(self.params)
 
+        self.define_preprocess_pipeline()
+        self.apply_train_test_split(self.X, self.y)
         self.apply_preprocess_pipline_to_all_partitions()
+
         logger.info("Fitting XGBoost pipeline...")
 
         results = []

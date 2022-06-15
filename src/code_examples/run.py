@@ -32,10 +32,7 @@ def train(X, y, dataset_name):
     enet_pipeline.fit()
 
     pipeline = XGBoostPipeline(X, y, xgb_params, dataset_name)
-
-    pipeline.define_preprocess_pipeline().apply_train_test_split(
-        X, y
-    ).fit_and_tune_xboost()
+    pipeline.fit()
 
 
 for dataset in DATASETS_INFO:

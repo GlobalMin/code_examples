@@ -1,2 +1,1 @@
-
 from code_examples.pipelines.xgboost_pipeline import XGBoostPipeline
