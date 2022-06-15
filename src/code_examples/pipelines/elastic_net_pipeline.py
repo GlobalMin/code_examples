@@ -84,7 +84,7 @@ class ElasticNetPipeline:
         self.make_train_test_split()
         self.define_pipeline()
 
-        logger.info("Fitting pipeline...")
+        logger.info("Fitting ENET pipeline...")
         self.enet_pipeline.fit(self.X_train, self.y_train)
 
         y_pred = self.enet_pipeline.predict_proba(self.X_test)[:, 1]
@@ -95,14 +95,13 @@ class ElasticNetPipeline:
         l1_ratios = self.enet_pipeline.named_steps["clf"].l1_ratios_
         coefficients = self.enet_pipeline.named_steps["clf"].coef_
 
-        logger.info(f"Coefficients after tuning:{coefficients}")
-
         self.results.append(
             {"AUC": auc, "l1_ratio": l1_ratios, "model": self.enet_pipeline}
         )
 
         # Sort the results by AUC
         self.results.sort(key=lambda x: x["AUC"], reverse=True)
+        logger.info(f'Best results: AUC = {self.results[0]["AUC"]}')
 
         # Pickle dump best pipeline
         with open(

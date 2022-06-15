@@ -70,6 +70,6 @@ CC_APPROVAL_DATA = get_cc_approval_data()
 
 DATASETS_INFO = [
     [AUTRALIAN_CREDIT_DATA, "Target", "Australian Credit"],
-    [CC_FRAUD_DATA, "Class", "CC Fraud Data"],
+    # [CC_FRAUD_DATA, "Class", "CC Fraud Data"],
     [CC_APPROVAL_DATA, "target", "CC Approval Data"],
 ]

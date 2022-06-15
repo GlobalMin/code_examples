@@ -118,7 +118,7 @@ class XGBoostPipeline:
         all_params = make_list_all_param_combinations(self.params)
 
         self.apply_preprocess_pipline_to_all_partitions()
-        logger.info("Training models...")
+        logger.info("Fitting XGBoost pipeline...")
 
         results = []
 

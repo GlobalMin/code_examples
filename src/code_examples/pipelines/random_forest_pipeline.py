@@ -83,6 +83,7 @@ class RandomForestPipeline:
         # Loop over all combinations of hyperparameters
         all_params = make_list_all_param_combinations(self.params)
 
+        logger.info("Fitting RF pipeline...")
         for d in tqdm.tqdm(all_params):
             full_pipeline = self.rf_pipeline
             full_pipeline.named_steps["clf"].set_params(**d)
@@ -90,15 +91,15 @@ class RandomForestPipeline:
             y_pred = full_pipeline.predict(self.X_test)
             auc = roc_auc_score(self.y_test, y_pred)
 
-            logger.info("Hyperparameters: {}".format(d))
-            logger.info("AUC: {}".format(auc))
-
             self.results.append(
                 {"AUC": auc, "hyperparameters": d, "model": full_pipeline}
             )
 
         # Sort the results by AUC
         self.results.sort(key=lambda x: x["AUC"], reverse=True)
+
+        logger.info(f'Best results: AUC = {self.results[0]["AUC"]}')
+        logger.info(f'Best hyperparameters: {self.results[0]["hyperparameters"]}')
 
         # Pickle dump best pipeline
         with open(
