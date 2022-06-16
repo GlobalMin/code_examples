@@ -2,6 +2,7 @@ import os
 import pickle
 
 import tqdm
+from numpy import mean
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
@@ -45,7 +46,7 @@ class RandomForestPipeline:
         categorical_transformer = Pipeline(
             steps=[
                 ("imputer", SimpleImputer(strategy="constant")),
-                ("onehot", OrdinalEncoder(encoded_missing_value=-1)),
+                ("onehot", OrdinalEncoder()),
             ]
         )
         preprocessor = ColumnTransformer(
@@ -60,7 +61,7 @@ class RandomForestPipeline:
                 ("preprocessor", preprocessor),
                 (
                     "clf",
-                    RandomForestClassifier(),
+                    RandomForestClassifier(oob_score=True, random_state=42),
                 ),
             ]
         )
@@ -87,7 +88,40 @@ class RandomForestPipeline:
         for d in tqdm.tqdm(all_params):
             full_pipeline = self.rf_pipeline
             full_pipeline.named_steps["clf"].set_params(**d)
-            full_pipeline.fit(self.X_train, self.y_train)
+
+            oob_scores = []
+            current_best = 10000
+            # Loop over n_estimators from 100 to 1000
+            n_estimators_range = range(225, 1000, 25)
+            for i, n_estimators in enumerate(n_estimators_range):
+                full_pipeline.named_steps["clf"].set_params(n_estimators=n_estimators)
+                full_pipeline.fit(self.X_train, self.y_train)
+                # get oob scores
+                oob_scores.append(full_pipeline.named_steps["clf"].oob_score_)
+
+                # calculate rolling mean of oob scores from last 50 iterations
+
+                # logger.info(current_best)
+
+                if i >= 5:
+                    oob_scores_mean = sum(oob_scores[-5:]) / len(oob_scores[-5:])
+
+                else:
+                    oob_scores_mean = sum(oob_scores) / len(oob_scores)
+                # logger.info(f"oob_scores_mean: {oob_scores_mean} {type(oob_scores_mean)}")
+
+                if oob_scores_mean < current_best:
+                    current_best = oob_scores_mean
+                elif i >= 5:
+                    full_pipeline.named_steps["clf"].set_params(
+                        n_estimators=n_estimators
+                    )
+                    d["n_estimators"] = n_estimators
+                    break
+                else:
+                    continue
+
+            # full_pipeline.fit(self.X_train, self.y_train)
             y_pred = full_pipeline.predict(self.X_test)
             auc = roc_auc_score(self.y_test, y_pred)
 

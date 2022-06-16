@@ -63,7 +63,7 @@ class XGBoostPipeline:
         )
 
         categorical_transformer = Pipeline(
-            steps=[("ordinal_encoding", OrdinalEncoder(encoded_missing_value=-1))]
+            steps=[("ordinal_encoding", OrdinalEncoder())]
         )
 
         preprocessor = ColumnTransformer(
