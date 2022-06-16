@@ -37,7 +37,9 @@ def get_cc_fraud_data():
     df_negative_class.reset_index(drop=True, inplace=True)
     df_negative_class.dropna(inplace=True)
 
-    df_downsampled_negative_class = df_negative_class.sample(frac=0.05, random_state=42)
+    df_downsampled_negative_class = df_negative_class.sample(
+        frac=0.025, random_state=42
+    )
 
     # Combine y_downsample and x_downsample
     df_downsample = pd.concat(

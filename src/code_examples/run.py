@@ -19,7 +19,7 @@ with open("config.yaml", "r") as f:
 
 
 def train(X, y, dataset_name):
-
+    """Train a model on a dataset."""
     for p in params:
         for key, value in p.items():
             if key == "XGBoost":
@@ -39,7 +39,7 @@ def train(X, y, dataset_name):
 
 tic = time.time()
 for dataset in DATASETS_INFO:
-
+    logger.info("-----------------------------------------------------")
     df, target, desc = dataset
 
     y = df.pop(target)
@@ -50,4 +50,5 @@ for dataset in DATASETS_INFO:
     train(X, y, dataset_name=desc)
 
 toc = time.time()
-logger.info(f"Total time: {toc - tic}")
+
+logger.info(f"Total time: {(toc - tic) / 60:.2f} minutes")
