@@ -93,6 +93,3 @@ DATASETS_INFO = [
     [CC_FRAUD_DATA, "Class", "CC Fraud Data"],
     [CC_APPROVAL_DATA, "target", "CC Approval Data"],
 ]
-
-
-get_cc_fraud_data()
