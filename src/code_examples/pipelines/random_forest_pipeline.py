@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 class RandomForestPipeline:
     """Fit RandomForest classifier on an arbitrary dataset."""
 
-    def __init__(self, X, y, params, dataset_name):
+    def __init__(self, X, y, params, dataset_name, n_jobs=3):
         self.X = X
         self.y = y
         self.params = params
@@ -36,6 +36,7 @@ class RandomForestPipeline:
         self.y_test = None
         self.rf_pipeline = None
         self.results = []
+        self.n_jobs = n_jobs
 
     def define_pipeline(self):
         """Set up sklearn Pipeline for imputing missings and encoding categoricals"""
@@ -63,7 +64,9 @@ class RandomForestPipeline:
                 ("preprocessor", preprocessor),
                 (
                     "clf",
-                    RandomForestClassifier(oob_score=True, random_state=42, n_jobs=3),
+                    RandomForestClassifier(
+                        oob_score=True, random_state=42, n_jobs=self.n_jobs
+                    ),
                 ),
             ]
         )

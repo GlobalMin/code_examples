@@ -35,7 +35,7 @@ def train(X, y, dataset_name):
     )
     light_gbm_pipeline.fit()
 
-    rf_pipeline = RandomForestPipeline(X, y, rf_params, dataset_name)
+    rf_pipeline = RandomForestPipeline(X, y, rf_params, dataset_name, n_jobs=8)
     rf_pipeline.fit()
 
     enet_pipeline = ElasticNetPipeline(X, y, xgb_params, dataset_name)
