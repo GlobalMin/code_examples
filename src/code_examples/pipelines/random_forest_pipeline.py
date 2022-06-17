@@ -90,10 +90,12 @@ class RandomForestPipeline:
         all_params = make_list_all_param_combinations(self.params)
 
         logger.info("Fitting RF pipeline...")
+
         for d in tqdm.tqdm(all_params):
 
             oob_scores = []
             current_best = 10000
+            rounds_without_improvement = 0
             # Loop over n_estimators from 50 to 1000, checking if accuracy is improving over last 5 rounds.
             # If not, then stop loop.
 
@@ -106,27 +108,49 @@ class RandomForestPipeline:
 
                 full_pipeline.fit(self.X_train, self.y_train)
                 # get oob scores
+                current_oob_score = full_pipeline.named_steps["clf"].oob_score_
                 oob_scores.append(full_pipeline.named_steps["clf"].oob_score_)
 
-                # calculate rolling mean of oob scores from last 5 iterations
-                def rolling_mean(oob_scores, n):
-                    return statistics.mean(oob_scores[-n:])
+                best_oob_score = min(oob_scores)
+                if current_oob_score < best_oob_score:
+                    best_oob_score = current_oob_score
+                    current_best_index = i
+                elif current_oob_score >= best_oob_score:
+                    rounds_without_improvement += 1    
 
-                if i >= 5:
-                    oob_scores_mean = rolling_mean(oob_scores, 5)
-
-                else:
-                    oob_scores_mean = rolling_mean(oob_scores, i + 1)
-                if oob_scores_mean < current_best:
-                    current_best = oob_scores_mean
-                elif i >= 5:
+                if rounds_without_improvement == 4:
                     full_pipeline.named_steps["clf"].set_params(
-                        n_estimators=n_estimators
+                    n_estimators=n_estimators
                     )
                     d["n_estimators"] = n_estimators
                     break
-                else:
-                    continue
+
+
+
+                # # calculate rolling mean of oob scores from last 5 iterations
+                # def rolling_mean(oob_scores, n):
+                #     return statistics.mean(oob_scores[-n:])
+
+                # # Compare current oob score to best oob score
+                # # If current oob score is better, then update best oob score
+
+                # if rolling_mean(oob_scores, 5) < current_best:
+
+                # if i >= 5:
+                #     oob_scores_mean = rolling_mean(oob_scores, 5)
+
+                # else:
+                #     oob_scores_mean = rolling_mean(oob_scores, i + 1)
+                # if oob_scores_mean < current_best:
+                #     current_best = oob_scores_mean
+                # elif i >= 5:
+                #     full_pipeline.named_steps["clf"].set_params(
+                #         n_estimators=n_estimators
+                #     )
+                #     d["n_estimators"] = n_estimators
+                #     break
+                # else:
+                #     continue
 
             y_pred = full_pipeline.predict(self.X_test)
             auc = roc_auc_score(self.y_test, y_pred)
