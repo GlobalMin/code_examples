@@ -1,5 +1,6 @@
 import os
 import pickle
+import statistics
 
 import numpy as np
 import tqdm
@@ -62,7 +63,7 @@ class RandomForestPipeline:
                 ("preprocessor", preprocessor),
                 (
                     "clf",
-                    RandomForestClassifier(oob_score=True, random_state=42, n_jobs=6),
+                    RandomForestClassifier(oob_score=True, random_state=42, n_jobs=3),
                 ),
             ]
         )
@@ -105,12 +106,14 @@ class RandomForestPipeline:
                 oob_scores.append(full_pipeline.named_steps["clf"].oob_score_)
 
                 # calculate rolling mean of oob scores from last 5 iterations
+                def rolling_mean(oob_scores, n):
+                    return statistics.mean(oob_scores[-n:])
+
                 if i >= 5:
-                    oob_scores_mean = sum(oob_scores[-5:]) / len(oob_scores[-5:])
+                    oob_scores_mean = rolling_mean(oob_scores, 5)
 
                 else:
-                    oob_scores_mean = sum(oob_scores) / len(oob_scores)
-
+                    oob_scores_mean = rolling_mean(oob_scores, i + 1)
                 if oob_scores_mean < current_best:
                     current_best = oob_scores_mean
                 elif i >= 5:
