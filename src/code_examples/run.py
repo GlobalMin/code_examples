@@ -35,7 +35,7 @@ def train(X, y, dataset_name):
     )
     light_gbm_pipeline.fit()
 
-    rf_pipeline = RandomForestPipeline(X, y, rf_params, dataset_name, n_jobs=8)
+    rf_pipeline = RandomForestPipeline(X, y, rf_params, dataset_name, n_jobs=-1)
     rf_pipeline.fit()
 
     enet_pipeline = ElasticNetPipeline(X, y, xgb_params, dataset_name)
@@ -43,6 +43,11 @@ def train(X, y, dataset_name):
 
     pipeline = XGBoostPipeline(X, y, xgb_params, dataset_name)
     pipeline.fit()
+
+    logger.info(f"LightGBM AUC: {light_gbm_pipeline.best_auc}")
+    logger.info(f"RF AUC:{rf_pipeline.best_auc}")
+    logger.info(f"ENET AUC:{enet_pipeline.best_auc}")
+    logger.info(f"XGBoost AUC:{pipeline.best_auc}")
 
 
 tic = time.time()

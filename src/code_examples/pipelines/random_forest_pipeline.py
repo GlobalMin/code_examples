@@ -1,3 +1,4 @@
+import copy
 import os
 import pickle
 import statistics
@@ -91,19 +92,24 @@ class RandomForestPipeline:
 
         logger.info("Fitting RF pipeline...")
 
+        full_pipeline = None
+
         for d in tqdm.tqdm(all_params):
 
             oob_scores = []
-            current_best = 10000
             rounds_without_improvement = 0
             # Loop over n_estimators from 50 to 1000, checking if accuracy is improving over last 5 rounds.
             # If not, then stop loop.
 
-            n_estimators_range = np.arange(50, 1000, 25)
+            n_estimators_range = np.arange(50, 500, 25)
             for i, n_estimators in enumerate(n_estimators_range):
                 # Combine d with n_estimators
-                full_pipeline = self.rf_pipeline
+                if i == 0:
+                    full_pipeline = copy.deepcopy(self.rf_pipeline)
+                    d["warm_start"] = True
+
                 d["n_estimators"] = n_estimators
+
                 full_pipeline.named_steps["clf"].set_params(**d)
 
                 full_pipeline.fit(self.X_train, self.y_train)
@@ -111,46 +117,26 @@ class RandomForestPipeline:
                 current_oob_score = full_pipeline.named_steps["clf"].oob_score_
                 oob_scores.append(full_pipeline.named_steps["clf"].oob_score_)
 
-                best_oob_score = min(oob_scores)
-                if current_oob_score < best_oob_score:
-                    best_oob_score = current_oob_score
-                    current_best_index = i
-                elif current_oob_score >= best_oob_score:
-                    rounds_without_improvement += 1    
+                if i == 0:
+                    best_last_two_rounds = current_oob_score
+                    continue
+                elif i <= 3:
+                    best_last_two_rounds = min(oob_scores)
+                    continue
+                else:
+                    best_last_two_rounds = min(oob_scores[-2:])
 
-                if rounds_without_improvement == 4:
+                if current_oob_score > best_last_two_rounds:
+                    rounds_without_improvement += 1
+                else:
+                    rounds_without_improvement = 0
+
+                if rounds_without_improvement == 2:
                     full_pipeline.named_steps["clf"].set_params(
-                    n_estimators=n_estimators
+                        n_estimators=n_estimators
                     )
                     d["n_estimators"] = n_estimators
                     break
-
-
-
-                # # calculate rolling mean of oob scores from last 5 iterations
-                # def rolling_mean(oob_scores, n):
-                #     return statistics.mean(oob_scores[-n:])
-
-                # # Compare current oob score to best oob score
-                # # If current oob score is better, then update best oob score
-
-                # if rolling_mean(oob_scores, 5) < current_best:
-
-                # if i >= 5:
-                #     oob_scores_mean = rolling_mean(oob_scores, 5)
-
-                # else:
-                #     oob_scores_mean = rolling_mean(oob_scores, i + 1)
-                # if oob_scores_mean < current_best:
-                #     current_best = oob_scores_mean
-                # elif i >= 5:
-                #     full_pipeline.named_steps["clf"].set_params(
-                #         n_estimators=n_estimators
-                #     )
-                #     d["n_estimators"] = n_estimators
-                #     break
-                # else:
-                #     continue
 
             y_pred = full_pipeline.predict(self.X_test)
             auc = roc_auc_score(self.y_test, y_pred)
@@ -175,3 +161,13 @@ class RandomForestPipeline:
             "wb",
         ) as f:
             pickle.dump(self.results[0]["model"], f)
+
+    @property
+    def best_auc(self):
+        """Return the AUC of the best model"""
+        return self.results[0]["AUC"]
+
+    @property
+    def best_hyperparameters(self):
+        """Return the hyperparameters of the best model"""
+        return self.results[0]["hyperparameters"]

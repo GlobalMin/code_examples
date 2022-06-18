@@ -77,11 +77,15 @@ def get_cc_approval_data():
 
     new_df = pd.merge(application_record, target_df, how="inner", on=["ID"])
 
+    new_df_downsampled = stratified_sample(
+        df=new_df, stratify_column="target", proportion=0.25
+    )
+
     os.remove("credit_record.csv")
     os.remove("application_record.csv")
     os.remove("credit-card-approval-prediction.zip")
 
-    return new_df
+    return new_df_downsampled
 
 
 CC_FRAUD_DATA = get_cc_fraud_data()

@@ -52,6 +52,7 @@ class XGBoostPipeline:
         self.X_test_preprocessed = None
         self.X_train_train_preprocessed = None
         self.X_train_valid_preprocessed = None
+        self.results = []
 
     def define_preprocess_pipeline(self):
         """Set up sklearn Pipeline for imputing missings and encoding categoricals"""
@@ -156,13 +157,15 @@ class XGBoostPipeline:
             auc = roc_auc_score(self.y_test, y_pred)
 
             # Store AUC and hyperparameters
-            results.append({"AUC": auc, "hyperparameters": d, "model": full_pipeline})
+            self.results.append(
+                {"AUC": auc, "hyperparameters": d, "model": full_pipeline}
+            )
 
         # Sort the results by AUC
-        results.sort(key=lambda x: x["AUC"], reverse=True)
+        self.results.sort(key=lambda x: x["AUC"], reverse=True)
 
-        logger.info(f'Best results: AUC = {results[0]["AUC"]}')
-        logger.info(f'Best hyperparameters: {results[0]["hyperparameters"]}')
+        logger.info(f'Best results: AUC = {self.results[0]["AUC"]}')
+        logger.info(f'Best hyperparameters: {self.results[0]["hyperparameters"]}')
 
         # Pickle dump best pipeline
         with open(
@@ -173,6 +176,16 @@ class XGBoostPipeline:
             ),
             "wb",
         ) as f:
-            pickle.dump(results[0]["model"], f)
+            pickle.dump(self.results[0]["model"], f)
 
-        return results
+        return self.results
+
+    @property
+    def best_auc(self):
+        """Return the AUC of the best model"""
+        return self.results[0]["AUC"]
+
+    @property
+    def best_hyperparameters(self):
+        """Return the hyperparameters of the best model"""
+        return self.results[0]["hyperparameters"]

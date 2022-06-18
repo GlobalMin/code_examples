@@ -114,3 +114,13 @@ class ElasticNetPipeline:
             "wb",
         ) as f:
             pickle.dump(self.results[0]["model"], f)
+
+    @property
+    def best_auc(self):
+        """Return the AUC of the best model"""
+        return self.results[0]["AUC"]
+
+    @property
+    def best_hyperparameters(self):
+        """Return the hyperparameters of the best model"""
+        return self.results[0]["hyperparameters"]
