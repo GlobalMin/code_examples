@@ -77,6 +77,8 @@ def get_cc_approval_data():
 
     new_df = pd.merge(application_record, target_df, how="inner", on=["ID"])
 
+    new_df.drop(columns=["ID"], inplace=True)
+
     new_df_downsampled = stratified_sample(
         df=new_df, stratify_column="target", proportion=0.25
     )

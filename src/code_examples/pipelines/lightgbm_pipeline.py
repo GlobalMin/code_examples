@@ -3,7 +3,6 @@ import pickle
 
 import lightgbm
 import tqdm
-import xgboost as xgb
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import roc_auc_score
