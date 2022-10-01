@@ -7,6 +7,7 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 
+from code_examples.reducing import Reducer
 from code_examples.utils import get_logger, stratified_sample
 
 load_dotenv()
@@ -28,6 +29,21 @@ def get_cc_fraud_data():
 
     df = pd.read_csv("creditcard.csv")
 
+    df_dtypes_prior = df.dtypes
+    df = Reducer().reduce(df)
+    df_dtypes_after = df.dtypes
+
+    ## Store df's dtypes to a dataframe
+    df_dtypes = pd.DataFrame(
+        {
+            "column": df.columns,
+            "dtype_prior": df_dtypes_prior,
+            "dtype_after": df_dtypes_after,
+        }
+    )
+
+    print(df_dtypes)
+
     # Select class column from df and sample it
 
     df_positive_class = pd.DataFrame(df[df["Class"] == 1])
@@ -46,8 +62,6 @@ def get_cc_fraud_data():
         [df_positive_class, df_downsampled_negative_class], axis=0
     )
     df_downsample.sample(frac=1, random_state=42).reset_index(drop=True, inplace=True)
-
-    print(df_downsample["Class"].value_counts())
 
     os.remove("creditcard.csv")
     os.remove("creditcardfraud.zip")
@@ -79,6 +93,21 @@ def get_cc_approval_data():
 
     new_df.drop(columns=["ID"], inplace=True)
 
+    df_dtypes_prior = new_df.dtypes
+    new_df = Reducer().reduce(new_df)
+    df_dtypes_after = new_df.dtypes
+
+    ## Store df's dtypes to a dataframe
+    df_dtypes = pd.DataFrame(
+        {
+            "column": new_df.columns,
+            "dtype_prior": df_dtypes_prior,
+            "dtype_after": df_dtypes_after,
+        }
+    )
+
+    print(df_dtypes)
+
     new_df_downsampled = stratified_sample(
         df=new_df, stratify_column="target", proportion=0.25
     )
@@ -90,9 +119,9 @@ def get_cc_approval_data():
     return new_df_downsampled
 
 
-CC_FRAUD_DATA = get_cc_fraud_data()
 AUTRALIAN_CREDIT_DATA = get_australian_credit_data()
 CC_APPROVAL_DATA = get_cc_approval_data()
+CC_FRAUD_DATA = get_cc_fraud_data()
 
 DATASETS_INFO = [
     [AUTRALIAN_CREDIT_DATA, "Target", "Australian Credit"],

@@ -9,8 +9,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from code_examples.utils import (find_categorical_features,
-                                 find_numeric_features, get_logger)
+from code_examples.utils import (
+    find_categorical_features,
+    find_numeric_features,
+    get_logger,
+)
 
 logger = get_logger(__name__)
 

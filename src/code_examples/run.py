@@ -44,13 +44,14 @@ def train(X, y, dataset_name):
     pipeline = XGBoostPipeline(X, y, xgb_params, dataset_name)
     pipeline.fit()
 
-    # Format f string to 2 decimals 
-    logger.info("")    
+    # Format f string to 2 decimals
+    logger.info("")
     logger.info(f"LightGBM AUC: {light_gbm_pipeline.best_auc:.2f}")
     logger.info(f"RF AUC:{rf_pipeline.best_auc:.2f}")
     logger.info(f"ENET AUC:{enet_pipeline.best_auc:.2f}")
     logger.info(f"XGBoost AUC:{pipeline.best_auc:.2f}")
     logger.info("-----------------------------------------------------")
+
 
 tic = time.time()
 for dataset in DATASETS_INFO:

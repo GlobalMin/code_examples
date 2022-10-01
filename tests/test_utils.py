@@ -3,8 +3,11 @@ import random
 import numpy as np
 import pandas as pd
 
-from code_examples.utils import (find_high_counts_cols, find_unique_cols,
-                                 stratified_sample)
+from code_examples.utils import (
+    find_high_counts_cols,
+    find_unique_cols,
+    stratified_sample,
+)
 
 
 # Test stratified_sample

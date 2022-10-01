@@ -14,9 +14,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 
-from code_examples.utils import (find_categorical_features,
-                                 find_numeric_features, get_logger,
-                                 make_list_all_param_combinations)
+from code_examples.utils import (
+    find_categorical_features,
+    find_numeric_features,
+    get_logger,
+    make_list_all_param_combinations,
+)
 
 logger = get_logger(__name__)
 
