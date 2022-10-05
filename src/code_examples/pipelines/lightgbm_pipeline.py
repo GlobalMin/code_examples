@@ -14,9 +14,7 @@ from code_examples.utils import (
     find_categorical_features,
     find_numeric_features,
     get_logger,
-    make_drop_cols_list,
     make_list_all_param_combinations,
-    stratified_sample,
 )
 
 logger = get_logger(__name__)
