@@ -21,3 +21,7 @@ repos:
       args: ["--py37-plus"]
     - id: nbqa-isort
       args: ["--float-to-top"]
+- repo: https://github.com/fastai/nbdev
+  rev: 2.2.10
+  hooks:
+  - id: nbdev_clean
