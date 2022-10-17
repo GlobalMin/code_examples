@@ -45,7 +45,7 @@ class Reducer:
 
     memory_scale_factor = 1024**2  # memory in MB
 
-    def __init__(self, conv_table=None, use_categoricals=True, n_jobs=-1):
+    def __init__(self, conv_table=None, use_categoricals=True, categorical_unique_threshold=0.2, n_jobs=-1):
         """
         :param conv_table: dict with np.dtypes-strings as keys
         :param use_categoricals: Whether the new pandas dtype "Categoricals"
@@ -73,6 +73,7 @@ class Reducer:
 
         self.use_categoricals = use_categoricals
         self.n_jobs = n_jobs
+        self.categorical_unique_threshold = categorical_unique_threshold
 
     def _type_candidates(self, k):
         for c in self.conversion_table[k]:
@@ -118,7 +119,7 @@ class Reducer:
             else:
                 if isinstance(coltype, object) and self.use_categoricals:
                     # check for all-strings series
-                    if s.apply(lambda x: isinstance(x, str)).all():
+                    if s.apply(lambda x: isinstance(x, str)).all() and (len(s.unique()) / len(s) < self.categorical_unique_threshold):
                         if verbose:
                             print(f"convert {colname} to categorical")
                         return s.astype("category")
