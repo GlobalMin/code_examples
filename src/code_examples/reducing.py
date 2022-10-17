@@ -119,7 +119,9 @@ class Reducer:
             else:
                 if isinstance(coltype, object) and self.use_categoricals:
                     # check for all-strings series
-                    if s.apply(lambda x: isinstance(x, str)).all() and (len(s.unique()) / len(s) < self.categorical_unique_threshold):
+                    # Logic for determining if converting from obect to category is worth it
+                    cat_unique_levels_lt_threshold = (len(s.unique()) / len(s) < self.categorical_unique_threshold)
+                    if s.apply(lambda x: isinstance(x, str)).all() and cat_unique_levels_lt_threshold:
                         if verbose:
                             print(f"convert {colname} to categorical")
                         return s.astype("category")
