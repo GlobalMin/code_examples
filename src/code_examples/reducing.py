@@ -45,7 +45,13 @@ class Reducer:
 
     memory_scale_factor = 1024**2  # memory in MB
 
-    def __init__(self, conv_table=None, use_categoricals=True, categorical_unique_threshold=0.2, n_jobs=-1):
+    def __init__(
+        self,
+        conv_table=None,
+        use_categoricals=True,
+        categorical_unique_threshold=0.2,
+        n_jobs=-1,
+    ):
         """
         :param conv_table: dict with np.dtypes-strings as keys
         :param use_categoricals: Whether the new pandas dtype "Categoricals"
@@ -120,8 +126,13 @@ class Reducer:
                 if isinstance(coltype, object) and self.use_categoricals:
                     # check for all-strings series
                     # Logic for determining if converting from obect to category is worth it
-                    cat_unique_levels_lt_threshold = (len(s.unique()) / len(s) < self.categorical_unique_threshold)
-                    if s.apply(lambda x: isinstance(x, str)).all() and cat_unique_levels_lt_threshold:
+                    cat_unique_levels_lt_threshold = (
+                        len(s.unique()) / len(s) < self.categorical_unique_threshold
+                    )
+                    if (
+                        s.apply(lambda x: isinstance(x, str)).all()
+                        and cat_unique_levels_lt_threshold
+                    ):
                         if verbose:
                             print(f"convert {colname} to categorical")
                         return s.astype("category")
