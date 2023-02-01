@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 from code_examples.benchmark_datasets import DATASETS_INFO
 from code_examples.pipelines.elastic_net_pipeline import ElasticNetPipeline
+
 from code_examples.pipelines.lightgbm_pipeline import LightGBMPipeline
 from code_examples.pipelines.random_forest_pipeline import RandomForestPipeline
 from code_examples.pipelines.xgboost_pipeline import XGBoostPipeline
@@ -35,7 +36,8 @@ def train(X, y, dataset_name):
     )
     light_gbm_pipeline.fit()
 
-    rf_pipeline = RandomForestPipeline(X, y, rf_params, dataset_name, n_jobs=-1)
+    rf_pipeline = RandomForestPipeline(
+        X, y, rf_params, dataset_name, n_jobs=-1)
     rf_pipeline.fit()
 
     enet_pipeline = ElasticNetPipeline(X, y, xgb_params, dataset_name)

@@ -66,7 +66,8 @@ class LightGBMPipeline:
         )
 
         # Data preprocessing pipeline
-        self.preprocess_pipeline = Pipeline(steps=[("preprocessor", preprocessor)])
+        self.preprocess_pipeline = Pipeline(
+            steps=[("preprocessor", preprocessor)])
 
         return self
 
@@ -97,9 +98,11 @@ class LightGBMPipeline:
         self.X_train_valid_preprocessed = self.preprocess_pipeline.transform(
             self.X_train_valid
         )
-        self.X_test_preprocessed = self.preprocess_pipeline.transform(self.X_test)
+        self.X_test_preprocessed = self.preprocess_pipeline.transform(
+            self.X_test)
 
-        self.X_train_preprocessed = self.preprocess_pipeline.fit_transform(self.X_train)
+        self.X_train_preprocessed = self.preprocess_pipeline.fit_transform(
+            self.X_train)
 
         return self
 
@@ -163,7 +166,8 @@ class LightGBMPipeline:
         self.results.sort(key=lambda x: x["AUC"], reverse=True)
 
         logger.info(f'Best results: AUC = {self.results[0]["AUC"]}')
-        logger.info(f'Best hyperparameters: {self.results[0]["hyperparameters"]}')
+        logger.info(
+            f'Best hyperparameters: {self.results[0]["hyperparameters"]}')
 
         # Pickle dump best pipeline
         with open(

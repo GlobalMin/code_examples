@@ -89,7 +89,8 @@ def find_categorical_features(df):
 
 def find_numeric_features(df):
     """Find numeric features"""
-    numeric_types = ["int16", "int32", "int64", "float16", "float32", "float64"]
+    numeric_types = ["int16", "int32", "int64",
+                     "float16", "float32", "float64"]
     num_cols = []
     for col in df.columns:
         if df[col].dtype in numeric_types:

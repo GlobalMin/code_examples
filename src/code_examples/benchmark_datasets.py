@@ -33,7 +33,7 @@ def get_cc_fraud_data():
     df = Reducer().reduce(df)
     df_dtypes_after = df.dtypes
 
-    ## Store df's dtypes to a dataframe
+    # Store df's dtypes to a dataframe
     df_dtypes = pd.DataFrame(
         {
             "column": df.columns,
@@ -61,7 +61,8 @@ def get_cc_fraud_data():
     df_downsample = pd.concat(
         [df_positive_class, df_downsampled_negative_class], axis=0
     )
-    df_downsample.sample(frac=1, random_state=42).reset_index(drop=True, inplace=True)
+    df_downsample.sample(frac=1, random_state=42).reset_index(
+        drop=True, inplace=True)
 
     os.remove("creditcard.csv")
     os.remove("creditcardfraud.zip")
@@ -97,7 +98,7 @@ def get_cc_approval_data():
     new_df = Reducer().reduce(new_df)
     df_dtypes_after = new_df.dtypes
 
-    ## Store df's dtypes to a dataframe
+    # Store df's dtypes to a dataframe
     df_dtypes = pd.DataFrame(
         {
             "column": new_df.columns,

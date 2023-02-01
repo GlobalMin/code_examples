@@ -97,7 +97,8 @@ class Reducer:
         """
         ret_list = Parallel(n_jobs=self.n_jobs, max_nbytes=None)(
             progress_bar(
-                list(delayed(self._reduce)(df[c], c, verbose) for c in df.columns)
+                list(delayed(self._reduce)(
+                    df[c], c, verbose) for c in df.columns)
             )
         )
 
@@ -127,7 +128,8 @@ class Reducer:
                     # check for all-strings series
                     # Logic for determining if converting from obect to category is worth it
                     cat_unique_levels_lt_threshold = (
-                        len(s.unique()) / len(s) < self.categorical_unique_threshold
+                        len(s.unique()) /
+                        len(s) < self.categorical_unique_threshold
                     )
                     if (
                         s.apply(lambda x: isinstance(x, str)).all()

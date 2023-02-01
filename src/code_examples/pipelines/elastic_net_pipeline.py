@@ -1,3 +1,4 @@
+from operator import ne
 import os
 import pickle
 
@@ -32,7 +33,6 @@ class ElasticNetPipeline:
         self.X_test = None
         self.y_train = None
         self.y_test = None
-        self.enet_pipeline = None
         self.results = []
 
     def define_pipeline(self):
@@ -56,7 +56,7 @@ class ElasticNetPipeline:
             ]
         )
 
-        self.enet_pipeline = Pipeline(
+        new_var = Pipeline(
             steps=[
                 ("preprocessor", preprocessor),
                 (
@@ -72,7 +72,7 @@ class ElasticNetPipeline:
             ]
         )
 
-        return self
+        return new_var
 
     def make_train_test_split(self):
         """Split data into train and test sets"""
@@ -86,21 +86,21 @@ class ElasticNetPipeline:
         """Fit the pipeline to the training data"""
 
         self.make_train_test_split()
-        self.define_pipeline()
+        enet_pipeline = self.define_pipeline()
 
         logger.info("Fitting ENET pipeline...")
-        self.enet_pipeline.fit(self.X_train, self.y_train)
+        enet_pipeline.fit(self.X_train, self.y_train)
 
-        y_pred = self.enet_pipeline.predict_proba(self.X_test)[:, 1]
+        y_pred = enet_pipeline.predict_proba(self.X_test)[:, 1]
         auc = roc_auc_score(self.y_test, y_pred)
 
         # Read parameters from classifier in the pipeline
 
-        l1_ratios = self.enet_pipeline.named_steps["clf"].l1_ratios_
-        coefficients = self.enet_pipeline.named_steps["clf"].coef_
+        l1_ratios = enet_pipeline.named_steps["clf"].l1_ratios_
+        coefficients = enet_pipeline.named_steps["clf"].coef_
 
         self.results.append(
-            {"AUC": auc, "l1_ratio": l1_ratios, "model": self.enet_pipeline}
+            {"AUC": auc, "l1_ratio": l1_ratios, "model": enet_pipeline}
         )
 
         # Sort the results by AUC

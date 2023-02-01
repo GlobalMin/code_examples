@@ -1,11 +1,11 @@
+from __future__ import annotations
+
 import copy
 import os
 import pickle
-import statistics
 
 import numpy as np
 import tqdm
-from numpy import mean
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
@@ -27,20 +27,22 @@ logger = get_logger(__name__)
 class RandomForestPipeline:
     """Fit RandomForest classifier on an arbitrary dataset."""
 
-    def __init__(self, X, y, params, dataset_name, n_jobs=3):
-        self.X = X
-        self.y = y
+    def __init__(self, input_features, target, params, dataset_name, n_jobs=3):
+        self.input_features = input_features
+        self.target = target
         self.params = params
         self.dataset_name = dataset_name
-        self.categorical_cols = find_categorical_features(self.X)
-        self.numeric_cols = find_numeric_features(self.X)
-        self.X_train = None
-        self.X_test = None
+        self.categorical_cols = find_categorical_features(self.input_features)
+        self.numeric_cols = find_numeric_features(self.input_features)
+        self.x_train = None
+        self.x_test = None
         self.y_train = None
         self.y_test = None
-        self.rf_pipeline = None
+        # Initialize rf_pipeline as a Pipeline type object
+        # This will be set in the define_pipeline method
         self.results = []
         self.n_jobs = n_jobs
+        self.full_pipeline = None
 
     def define_pipeline(self):
         """Set up sklearn Pipeline for imputing missings and encoding categoricals"""
@@ -63,7 +65,7 @@ class RandomForestPipeline:
             ]
         )
 
-        self.rf_pipeline = Pipeline(
+        rf_pipeline = Pipeline(
             steps=[
                 ("preprocessor", preprocessor),
                 (
@@ -75,12 +77,12 @@ class RandomForestPipeline:
             ]
         )
 
-        return self
+        return rf_pipeline
 
     def make_train_test_split(self):
         """Split data into train and test sets"""
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            self.X, self.y, test_size=0.2, random_state=42
+        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
+            self.input_features, self.target, test_size=0.2, random_state=42
         )
 
         return self
@@ -89,33 +91,37 @@ class RandomForestPipeline:
         """Fit the pipeline to the training data"""
 
         self.make_train_test_split()
-        self.define_pipeline()
+        rf_pipeline = self.define_pipeline()
         # Loop over all combinations of hyperparameters
         all_params = make_list_all_param_combinations(self.params)
 
         logger.info("Fitting RF pipeline...")
 
-        full_pipeline = None
-
-        for d in tqdm.tqdm(all_params):
+        for param in tqdm.tqdm(all_params):
 
             oob_scores = []
             rounds_without_improvement = 0
             # Loop over n_estimators from 50 to 1000, checking if accuracy is improving over last 5 rounds.
             # If not, then stop loop.
 
+            full_pipeline = rf_pipeline
             n_estimators_range = np.arange(50, 500, 25)
             for i, n_estimators in enumerate(n_estimators_range):
                 # Combine d with n_estimators
                 if i == 0:
-                    full_pipeline = copy.deepcopy(self.rf_pipeline)
-                    d["warm_start"] = True
+                    full_pipeline: Pipeline = copy.deepcopy(
+                        rf_pipeline)
 
-                d["n_estimators"] = n_estimators
+                    param["warm_start"] = True
 
-                full_pipeline.named_steps["clf"].set_params(**d)
+                else:
+                    assert isinstance(full_pipeline, Pipeline)
 
-                full_pipeline.fit(self.X_train, self.y_train)
+                param["n_estimators"] = n_estimators
+
+                full_pipeline.named_steps["clf"].set_params(**param)
+
+                full_pipeline.fit(self.x_train, self.y_train)
                 # get oob scores
                 current_oob_score = full_pipeline.named_steps["clf"].oob_score_
                 oob_scores.append(full_pipeline.named_steps["clf"].oob_score_)
@@ -138,21 +144,22 @@ class RandomForestPipeline:
                     full_pipeline.named_steps["clf"].set_params(
                         n_estimators=n_estimators
                     )
-                    d["n_estimators"] = n_estimators
+                    param["n_estimators"] = n_estimators
                     break
 
-            y_pred = full_pipeline.predict(self.X_test)
+            y_pred = full_pipeline.predict(self.x_test)
             auc = roc_auc_score(self.y_test, y_pred)
 
             self.results.append(
-                {"AUC": auc, "hyperparameters": d, "model": full_pipeline}
+                {"AUC": auc, "hyperparameters": param, "model": full_pipeline}
             )
 
         # Sort the results by AUC
         self.results.sort(key=lambda x: x["AUC"], reverse=True)
 
         logger.info(f'Best results: AUC = {self.results[0]["AUC"]}')
-        logger.info(f'Best hyperparameters: {self.results[0]["hyperparameters"]}')
+        logger.info(
+            f'Best hyperparameters: {self.results[0]["hyperparameters"]}')
 
         # Pickle dump best pipeline
         with open(
@@ -162,15 +169,15 @@ class RandomForestPipeline:
                 f"{self.dataset_name}_rf_pipeline.pkl",
             ),
             "wb",
-        ) as f:
-            pickle.dump(self.results[0]["model"], f)
+        ) as dump_ubject:
+            pickle.dump(self.results[0]["model"], dump_ubject)
 
-    @property
+    @ property
     def best_auc(self):
         """Return the AUC of the best model"""
         return self.results[0]["AUC"]
 
-    @property
+    @ property
     def best_hyperparameters(self):
         """Return the hyperparameters of the best model"""
         return self.results[0]["hyperparameters"]
